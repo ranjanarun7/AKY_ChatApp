@@ -12,16 +12,18 @@ import { useSocketContext } from '../context/SocketContext';
 const Sidebar = ({ onSelectUser }) => {
   const navigate = useNavigate();
   const { authUser, setAuthUser } = useAuth();
+
   const [searchInput, setSearchInput] = useState('');
-  const [searchUser, setSearchuser] = useState([]);
-  const [chatUser, setChatUser] = useState([]);
+  const [searchUser, setSearchuser] = useState([]);  // ✅ always array
+  const [chatUser, setChatUser] = useState([]);      // ✅ always array
   const [loading, setLoading] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [newMessageUsers, setNewMessageUsers] = useState('');
+  const [newMessageUsers, setNewMessageUsers] = useState(null); // ✅ default null
+
   const { setSelectedConversation } = userConversation();
   const { onlineUser, socket } = useSocketContext();
 
-  // ✅ newMessage handle
+  // ✅ handle socket new message
   useEffect(() => {
     if (!socket) return;
 
@@ -33,7 +35,7 @@ const Sidebar = ({ onSelectUser }) => {
     return () => socket.off("newMessage", handleNewMessage);
   }, [socket]);
 
-  // fetch chat users
+  // ✅ fetch chat users
   useEffect(() => {
     const chatUserHandler = async () => {
       setLoading(true)
@@ -43,7 +45,7 @@ const Sidebar = ({ onSelectUser }) => {
         if (data.success === false) {
           console.log(data.message);
         } else {
-          setChatUser(data)
+          setChatUser(Array.isArray(data) ? data : []); // ✅ safe array
         }
         setLoading(false)
       } catch (error) {
@@ -54,7 +56,7 @@ const Sidebar = ({ onSelectUser }) => {
     chatUserHandler()
   }, [])
 
-  // search submit
+  // ✅ search submit
   const handelSearchSubmit = async (e) => {
     e.preventDefault();
     setLoading(true)
@@ -64,10 +66,11 @@ const Sidebar = ({ onSelectUser }) => {
       if (data.success === false) {
         console.log(data.message);
       }
-      if (data.length === 0) {
+      if (!Array.isArray(data) || data.length === 0) {
         toast.info("User Not Found")
+        setSearchuser([]);
       } else {
-        setSearchuser(data)
+        setSearchuser(data);
       }
       setLoading(false)
     } catch (error) {
@@ -76,11 +79,12 @@ const Sidebar = ({ onSelectUser }) => {
     }
   }
 
+  // ✅ user select
   const handelUserClick = (user) => {
     onSelectUser(user);
     setSelectedConversation(user);
     setSelectedUserId(user._id);
-    setNewMessageUsers('');
+    setNewMessageUsers(null); // reset notification
   }
 
   const handSearchback = () => {
@@ -138,14 +142,14 @@ const Sidebar = ({ onSelectUser }) => {
       {searchUser?.length > 0 ? (
         <>
           <div className="min-h-[70%] max-h-[80%] overflow-y-auto scrollbar">
-            {searchUser.map((user) => (
+            {Array.isArray(searchUser) && searchUser.map((user) => (
               <div key={user._id}>
                 <div
                   onClick={() => handelUserClick(user)}
                   className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer 
                   ${selectedUserId === user?._id ? 'bg-sky-500' : ''}`}>
-                  
-                  {/* ✅ Online check fixed */}
+
+                  {/* ✅ Online check */}
                   <div className={`avatar ${onlineUser.includes(user._id) ? 'online' : ''}`}>
                     <div className="w-12 rounded-full">
                       <img src={user.profilepic} alt='user.img' />
@@ -175,14 +179,14 @@ const Sidebar = ({ onSelectUser }) => {
               </div>
             ) : (
               <>
-                {chatUser.map((user) => (
+                {Array.isArray(chatUser) && chatUser.map((user) => (
                   <div key={user._id}>
                     <div
                       onClick={() => handelUserClick(user)}
                       className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer 
                       ${selectedUserId === user?._id ? 'bg-sky-500' : ''}`}>
 
-                      {/* ✅ Online check fixed */}
+                      {/* ✅ Online check */}
                       <div className={`avatar ${onlineUser.includes(user._id) ? 'online' : ''}`}>
                         <div className="w-12 rounded-full">
                           <img src={user.profilepic} alt='user.img' />
@@ -191,10 +195,14 @@ const Sidebar = ({ onSelectUser }) => {
                       <div className='flex flex-col flex-1'>
                         <p className='font-bold text-gray-950'>{user.username}</p>
                       </div>
+
+                      {/* ✅ Safe notification check */}
                       <div>
-                        {newMessageUsers.reciverId === authUser._id && newMessageUsers.senderId === user._id ? (
-                          <div className="rounded-full bg-green-700 text-sm text-white px-[4px]">+1</div>
-                        ) : null}
+                        {newMessageUsers &&
+                          newMessageUsers.reciverId === authUser._id &&
+                          newMessageUsers.senderId === user._id && (
+                            <div className="rounded-full bg-green-700 text-sm text-white px-[4px]">+1</div>
+                        )}
                       </div>
                     </div>
                     <div className='divider divide-solid px-3 h-[1px]'></div>
