@@ -106,7 +106,7 @@ const Sidebar = ({ onSelectUser }) => {
                     console.log(data?.message);
                 }
                 toast.info(data?.message)
-                localStorage.removeItem('AKY-chatapp')
+                localStorage.removeItem('chatapp')
                 setAuthUser(null)
                 setLoading(false)
                 navigate('/login')
@@ -123,7 +123,7 @@ const Sidebar = ({ onSelectUser }) => {
     return (
         <div className='h-full w-auto px-1'>
             <div className='flex justify-between gap-2'>
-                <form onSubmit={handelSearchSubmit} className='w-full flex items-center justify-between bg-white text-black rounded-full '>
+                <form onSubmit={handelSearchSubmit} className='w-auto flex items-center justify-between bg-white rounded-full '>
                     <input
                         value={searchInput}
                         onChange={(e) => setSearchInput(e.target.value)}
@@ -184,7 +184,7 @@ const Sidebar = ({ onSelectUser }) => {
                             {chatUser.length === 0 ? (
                                 <>
                                     <div className='font-bold items-center flex flex-col text-xl text-yellow-500'>
-                                        <h1>No Chats Available</h1>
+                                        <h1>Why are you Alone!!🤔</h1>
                                         <h1>Search username to chat</h1>
                                     </div>
                                 </>

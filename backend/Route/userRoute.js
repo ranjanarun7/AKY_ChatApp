@@ -1,9 +1,10 @@
-const express=require("express")
-const router=express.Router()
-const { getUserBySearch, getCurrentChatters } = require('../RouteController/userHandlerRouteController');
-const { isLogin } = require("../Middleware/isLogin");
+import express from 'express'
+import isLogin from '../Middleware/isLogin.js'
+import { getCorrentChatters, getUserBySearch } from '../RouteController/userHandlerRouteController.js'
+const router = express.Router()
 
-router.get('/search', isLogin, getUserBySearch);
-router.get('/currentchatters', isLogin, getCurrentChatters);
+router.get('/search',isLogin,getUserBySearch);
 
-module.exports=router
+router.get('/currentchatters',isLogin,getCorrentChatters)
+
+export default router

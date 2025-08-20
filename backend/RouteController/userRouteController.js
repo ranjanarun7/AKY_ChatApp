@@ -1,86 +1,91 @@
-const User=require('../Models/userModels');
-const bcrypt = require('bcrypt');
-const { createToken } = require('../utils/jwtwebtoken');
+import User from "../Models/userModels.js";
+import bcryptjs from 'bcryptjs'
+import jwtToken from '../utils/jwtwebtoken.js'
 
-const userRegister=async(req,res)=>{
-    const {fullname,username,email,gender,password,profilepic}=req.body;
-    const user = await User.findOne({ $or: [{ username }, { email }] });
-    if(user){
-        return res.status(400).json({message:"User already exists"});
-    }
-    const hashedPassword=await bcrypt.hash(password,10);
-    const profileboy=profilepic ||`https://avatar.iran.liara.run/public/boy?username=${username}`;
-    const profilegirl=profilepic ||`https://avatar.iran.liara.run/public/girl?username=${username}`;
-    if(!fullname || !username || !email || !gender || !password){
-        return res.status(400).json({message:"Please fill all fields"});
-    }
+export const userRegister = async (req, res) => {
     try {
-        const newUser=new User({
+        const { fullname, username, email, gender, password, profilepic } = req.body;
+        console.log(req.body);
+        const user = await User.findOne({ username, email });
+        if (user) return res.status(500).send({ success: false, message: " UserName or Email Alredy Exist " });
+        const hashPassword = bcryptjs.hashSync(password, 10);
+        const profileBoy = profilepic || `https://avatar.iran.liara.run/public/boy?username=${username}`;
+        const profileGirl = profilepic || `https://avatar.iran.liara.run/public/girl?username=${username}`;
+
+        const newUser = new User({
             fullname,
             username,
             email,
+            password: hashPassword,
             gender,
-            password:hashedPassword,
-            profilepic:gender === 'male' ? profileboy : profilegirl
-        });
-        if(newUser) {
+            profilepic: gender === "male" ? profileBoy : profileGirl
+        })
+
+        if (newUser) {
             await newUser.save();
-            createToken(newUser, res);
-            res.status(201).json({
-              id: newUser._id,
-              fullname: newUser.fullname,
-              username: newUser.username,
-              email: newUser.email,
-              message: "User registered successfully"
-            });
-        }else {
-            res.status(400).json({message:"User registration failed"});
+            jwtToken(newUser._id, res)
+        } else {
+            res.status(500).send({ success: false, message: "Inavlid User Data" })
         }
+
+        res.status(201).send({
+            _id: newUser._id,
+            fullname: newUser.fullname,
+            username: newUser.username,
+            profilepic: newUser.profilepic,
+            email: newUser.email,
+        })
     } catch (error) {
-        console.error("Register Error:", error);
-        res.status(500).json({message:"Internal server error"});
+        res.status(500).send({
+            success: false,
+            message: error
+        })
+        console.log(error);
     }
 }
 
-const userLogin=async(req,res)=>{
-    const {email,password}=req.body;
-    if(!email || !password){
-        return res.status(400).json({message:"Please fill all fields"});
-    }
+export const userLogin = async (req, res) => {
     try {
-        const user=await User.findOne({email});
-        if(!user){
-            return res.status(404).json({message:"User not found"});
-        }
-        const isMatch=await bcrypt.compare(password,user.password);
-        if(!isMatch){
-            return res.status(400).json({message:"Wrong Password"});
-        }
-        createToken(user, res);
-        res.status(201).json({
-          id: user._id,
-          fullname: user.fullname,
-          username: user.username,
-          email: user.email,
-          message: "user login successful"
-      });
+        const { email, password } = req.body;
+        const user = await User.findOne({ email })
+        if (!user) return res.status(500).send({ success: false, message: "Email Dosen't Exist Register" })
+        const comparePasss = bcryptjs.compareSync(password, user.password || "");
+        if (!comparePasss) return res.status(500).send({ success: false, message: "Email Or Password dosen't Matching" })
+        
+        jwtToken(user._id, res);
+
+        res.status(200).send({
+            _id: user._id,
+            fullname: user.fullname,
+            username: user.username,
+            profilepic: user.profilepic,
+            email:user.email,
+            message: "Succesfully LogIn"
+        })
+
     } catch (error) {
-        console.error("Login Error:", error);
-        res.status(500).json({message:"Internal server error"});
+        res.status(500).send({
+            success: false,
+            message: error
+        })
+        console.log(error);
     }
 }
 
-const userLogout=async(req,res)=>{
+
+export const userLogOut=async(req,res)=>{
+    
     try {
-        res.cookie("jwt","",{maxAge:0});
-        res.status(200).json({
-            success:true,
-            message:"User logged out successfully"
-        });
-    } catch (error) {
-        console.error("Register Error:", error);
+        res.cookie("jwt",'',{
+            maxAge:0
+        })
+        res.status(200).send({success:true ,message:"User LogOut"})
 
-        res.status(500).json({message:"Internal server error"});
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: error
+        })
+        console.log(error);
     }
 }
-module.exports={userRegister,userLogin,userLogout};

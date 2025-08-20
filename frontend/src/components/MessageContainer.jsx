@@ -43,7 +43,7 @@ const MessageContainer = ({ onBackUser }) => {
                     console.log(data.message);
                 }
                 setLoading(false);
-                setMessage(data.messages || []);
+                setMessage(data);
             } catch (error) {
                 setLoading(false);
                 console.log(error);

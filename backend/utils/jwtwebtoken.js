@@ -1,13 +1,15 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken"
 
-const createToken = (user, res) => {
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.cookie("jwt", token, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict"
-    });
-};
+const jwtToken = (userId , res)=>{
+    const token = jwt.sign({userId},process.env.JWT_SECRET,{
+        expiresIn:'30d'
+    })
+    res.cookie('jwt',token,{
+        maxAge: 30 *24 *60 *60 *1000,
+        httpOnly:true,
+        sameSite:"strict",
+        secure:true
+    })
+}
 
-module.exports = { createToken };
+export default jwtToken

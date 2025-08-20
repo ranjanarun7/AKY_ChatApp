@@ -1,32 +1,35 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const authUserRoutes = require("./Route/authUser");
-const messageRoutes = require("./Route/messageRoute");
-const userRoutes = require("./Route/userRoute");
-const dbConnect = require("./DB/dbConnect");
-const cookieParser = require("cookie-parser");
-const path = require("path");
+import express from "express"
+import dotenv from 'dotenv'
+import dbConnect from "./DB/dbConnect.js";
+import authRouter from  './Route/authUser.js'
+import messageRouter from './Route/messageRoute.js'
+import userRouter from './Route/userRoute.js'
+import cookieParser from "cookie-parser";
+import path from "path";
+
+import {app , server} from './Socket/socket.js'
+
+const __dirname = path.resolve();
 
 dotenv.config();
 
-const { app, server } = require("./Socket/socket");
-const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser())
 
-app.use("/api/auth", authUserRoutes);
-app.use("/api/message", messageRoutes);
-app.use("/api/user", userRoutes);
+app.use('/api/auth',authRouter)
+app.use('/api/message',messageRouter)
+app.use('/api/user',userRouter)
 
-// ✅ Native __dirname directly use kar lo
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
-app.get("/*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../frontend/dist", "index.html"));
-});
+app.use(express.static(path.join(__dirname,"/frontend/dist")))
 
+app.get("*",(req,res)=>{
+    res.sendFile(path.join(__dirname,"frontend","dist","index.html"))
+})
 
-server.listen(PORT, () => {
-  dbConnect();
-  console.log(`Server is running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3000
+
+server.listen(PORT,()=>{
+    dbConnect();
+    console.log(`Working at ${PORT}`);
+})
