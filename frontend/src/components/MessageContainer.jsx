@@ -110,7 +110,7 @@ const MessageContainer = ({ onBackUser }) => {
               <div className="md:hidden ml-1 self-center">
                 <button
                   onClick={() => onBackUser(true)}
-                  className="bg-white rounded-full px-2 py-1
+                  className="bg-white text-black rounded-full px-2 py-1
                    self-center"
                 >
                   <IoArrowBackSharp size={25} />
