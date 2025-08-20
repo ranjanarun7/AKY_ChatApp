@@ -27,7 +27,7 @@ const MessageContainer = ({ onBackUser }) => {
     const handleNewMessage = (newMessage) => {
       const sound = new Audio(notify);
       sound.play();
-      setMessage([...messages, newMessage]);
+      setMessage((prevMessages) => [...prevMessages, newMessage]);
     };
 
     socket.on("newMessage", handleNewMessage);
@@ -83,7 +83,7 @@ const MessageContainer = ({ onBackUser }) => {
       }
       setSending(false);
       setSnedData("");
-      setMessage([...messages, data]);
+      setMessage((prevMessages) => [...prevMessages, data]);
     } catch (error) {
       setSending(false);
       console.log(error);
