@@ -27,12 +27,12 @@ const MessageContainer = ({ onBackUser }) => {
     const handleNewMessage = (newMessage) => {
       const sound = new Audio(notify);
       sound.play();
-      setMessage((prevMessages) => [...prevMessages, newMessage]);
+      setMessage([...messages, newMessage]);
     };
 
     socket.on("newMessage", handleNewMessage);
     return () => socket.off("newMessage", handleNewMessage);
-  }, [socket, setMessage]);
+  }, [socket, messages, setMessage]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -83,7 +83,7 @@ const MessageContainer = ({ onBackUser }) => {
       }
       setSending(false);
       setSnedData("");
-      setMessage((prevMessages) => [...prevMessages, data]);
+      setMessage([...messages, data]);
     } catch (error) {
       setSending(false);
       console.log(error);
