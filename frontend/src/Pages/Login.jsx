@@ -1,7 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react'
-import { Link,useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 const Login = () => {
 
@@ -29,7 +30,7 @@ const Login = () => {
                 console.log(data.message);
             }
             toast.success(data.message)
-            localStorage.setItem('AKY-chatapp',JSON.stringify(data));
+            localStorage.setItem('chatapp',JSON.stringify(data));
             setAuthUser(data)
             setLoading(false)
             navigate('/')
@@ -44,8 +45,8 @@ const Login = () => {
             <div className='w-full p-6 rounded-lg shadow-lg
           bg-gray-400 bg-clip-padding
            backderop-filter backdrop-blur-lg bg-opacity-0'>
-                <h1 className='text-3xl font-bold text-center text-gray-300'>Login
-                    <span className='text-gray-950'> AKY-ChatApp </span>
+                <h1 className='text-3xl font-bold text-center text-gray-300'>Login<br />
+                    <span className='text-sky-600 mt-7'> AKY-ChatApp </span>
                     </h1>
                     <form onSubmit={handelSubmit} className='flex flex-col text-black'>
                         <div>

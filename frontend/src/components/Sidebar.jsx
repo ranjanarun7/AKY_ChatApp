@@ -171,7 +171,7 @@ const Sidebar = ({ onSelectUser }) => {
                         </div>
                     </div>
                     <div className='mt-auto px-1 py-1 flex'>
-                        <button onClick={handSearchback} className='bg-white rounded-full px-2 py-1 self-center'>
+                        <button onClick={handSearchback} className='bg-white text-gray-950 rounded-full px-2 py-1 self-center'>
                             <IoArrowBackSharp size={25} />
                         </button>
 

@@ -38,7 +38,7 @@ console.log(inputData);
                 console.log(data.message);
             }
             toast.success(data?.message)
-            localStorage.setItem('AKY-chatapp',JSON.stringify(data))
+            localStorage.setItem('chatapp',JSON.stringify(data))
             setAuthUser(data)
             setLoading(false)
             navigate('/login')
@@ -151,7 +151,7 @@ console.log(inputData);
                     <div className='pt-2'>
                         <p className='text-sm font-semibold
                          text-gray-800'>
-                            Have an Account ? <Link to={'/login'}>
+                            Dont have an Acount ? <Link to={'/login'}>
                                 <span
                                     className='text-gray-950 
                             font-bold underline cursor-pointer
