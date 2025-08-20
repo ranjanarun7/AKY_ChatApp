@@ -27,7 +27,7 @@ const MessageContainer = ({ onBackUser }) => {
     const handleNewMessage = (newMessage) => {
       const sound = new Audio(notify);
       sound.play();
-      setMessage((prev) => [...prev, newMessage]);
+      setMessage([...messages, newMessage]);
     };
 
     socket.on("newMessage", handleNewMessage);
