@@ -17,6 +17,7 @@ dotenv.config();
 app.use(express.json());
 app.use(cookieParser())
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/api/auth',authRouter)
 app.use('/api/message',messageRouter)
 app.use('/api/user',userRouter)

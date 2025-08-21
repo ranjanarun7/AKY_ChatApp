@@ -1,12 +1,13 @@
-import express from "express"
+import express from "express";
 import { userLogOut, userLogin, userRegister } from "../RouteController/userRouteController.js";
+import upload from "../Middleware/multer.js";
 
 const router = express.Router();
 
-router.post('/register',userRegister);
+// register route with profilePic upload (Cloudinary)
+router.post("/register", upload.single("profilePic"), userRegister);
 
-router.post('/login',userLogin)
+router.post("/login", userLogin);
+router.post("/logout", userLogOut);
 
-router.post('/logout',userLogOut)
-
-export default router
+export default router;
