@@ -28,7 +28,7 @@ const Home = () => {
       <div className={`w-full py-2 md:flex ${isSidebarVisible ? '' : 'hidden'}`}>
       <Sidebar onSelectUser={handelUserSelect}/>
       </div>
-      <div className={`divider divider-horizontal px-3 md:flex
+      <div className={`divider divider-horizontal px-3 md:flex ml-7
          ${isSidebarVisible ? '' : 'hidden'} ${selectedUser ? 'block' : 'hidden'}`}></div>
       <div className={`flex-auto ${selectedUser ? '' : 'hidden md:flex'} bg-gray-200}`}>
       <MessageContainer onBackUser={handelShowSidebar}/>

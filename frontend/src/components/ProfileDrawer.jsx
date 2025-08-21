@@ -112,8 +112,8 @@ const handelLogOut = async () => {
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold">My Profile</h2>
-          <X className="cursor-pointer" onClick={onClose} />
+          <h2 className="text-lg font-semibold text-sky-600">My Profile</h2>
+          <X className="cursor-pointer text-sky-600 hover:text-sky-400" onClick={onClose} />
         </div>
 
         {/* Profile Pic */}
