@@ -49,7 +49,7 @@ const Sidebar = ({ onSelectUser }) => {
   // search submit
   const handelSearchSubmit = async (e) => {
     e.preventDefault();
-    if (!searchInput) return;
+    //if (!searchInput) return;
     setLoading(true);
     try {
       const res = await axios.get(`/api/user/search?search=${searchInput}`);
@@ -62,6 +62,33 @@ const Sidebar = ({ onSelectUser }) => {
       setLoading(false);
     }
   };
+
+useEffect(() => {
+  if (!searchInput.trim()) {
+    setSearchUser([]);
+    return;
+  }
+
+  const delayDebounce = setTimeout(async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/user/search?search=${searchInput}`);
+      if (res.data.success === false) {
+        console.log(res.data.message);
+      } else if (res.data.length === 0) {
+        setSearchUser([]);
+      } else {
+        setSearchUser(res.data);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  }, 400); // 400ms debounce
+
+  return () => clearTimeout(delayDebounce);
+}, [searchInput]);
 
   const handelUserClick = (user) => {
     onSelectUser(user);
@@ -84,7 +111,7 @@ const Sidebar = ({ onSelectUser }) => {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             type="text"
-            className="px-4 w-auto bg-transparent outline-none rounded-full"
+            className="px-4 w-auto bg-transparent outline-none rounded-full text-black"
             placeholder="search user"
           />
           <button className="btn btn-circle bg-sky-700 hover:bg-gray-950">
