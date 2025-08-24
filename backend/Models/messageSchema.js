@@ -20,6 +20,7 @@ const messageSchema = mongoose.Schema({
         ref: 'Conversation',
         default:[]
     },
+    isRead: { type: Boolean, default: false },
 },{timestamps:true})
 
 const Message = mongoose.model("Message",messageSchema)

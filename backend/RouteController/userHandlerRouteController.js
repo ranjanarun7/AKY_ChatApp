@@ -30,35 +30,55 @@ try {
 }
 
 
-export const getCorrentChatters=async(req,res)=>{
-    try {
-        const currentUserID = req.user._conditions._id;
-        const currenTChatters = await Conversation.find({
-            participants:currentUserID
-        }).sort({
-            updatedAt: -1
-            });
+export const getCorrentChatters = async (req, res) => {
+  try {
+    const currentUserID = req.user._conditions._id;
 
-            if(!currenTChatters || currenTChatters.length === 0)  return res.status(200).send([]);
+    const currenTChatters = await Conversation.find({
+      participants: currentUserID
+    }).sort({ updatedAt: -1 });
 
-            const partcipantsIDS = currenTChatters.reduce((ids,conversation)=>{
-                const otherParticipents = conversation.participants.filter(id => id !== currentUserID);
-                return [...ids , ...otherParticipents]
-            },[])
-
-            const otherParticipentsIDS = partcipantsIDS.filter(id => id.toString() !== currentUserID.toString());
-
-            const user = await User.find({_id:{$in:otherParticipentsIDS}}).select("-password").select("-email");
-
-            const users = otherParticipentsIDS.map(id => user.find(user => user._id.toString() === id.toString()));
-
-            res.status(200).send(users)
-
-    } catch (error) {
-        res.status(500).send({
-            success: false,
-            message: error
-        })
-        console.log(error);
+    if (!currenTChatters || currenTChatters.length === 0) {
+      return res.status(200).send([]);
     }
-}
+
+    // हर conversation से दूसरा user निकालना
+    const partcipantsIDS = currenTChatters.reduce((ids, conversation) => {
+      const otherParticipents = conversation.participants.filter(
+        id => id.toString() !== currentUserID.toString()
+      );
+      return [...ids, ...otherParticipents];
+    }, []);
+
+    // unique ids निकालने के लिए
+    const otherParticipentsIDS = [...new Set(partcipantsIDS)];
+
+    // user details fetch करना
+    const users = await User.find({
+      _id: { $in: otherParticipentsIDS }
+    })
+      .select("-password")
+      .select("-email");
+
+    // अब हर user के साथ उसका unread count भी भेजेंगे
+    const usersWithUnread = otherParticipentsIDS.map(id => {
+      const user = users.find(u => u._id.toString() === id.toString());
+      const convo = currenTChatters.find(c =>
+        c.participants.some(p => p.toString() === id.toString())
+      );
+
+      return {
+        ...user.toObject(),
+        unreadCount: convo?.unreadCount?.get(currentUserID.toString()) || 0
+      };
+    });
+
+    res.status(200).send(usersWithUnread);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: error.message || "Something went wrong"
+    });
+  }
+};

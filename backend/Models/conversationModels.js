@@ -13,7 +13,12 @@ const conversationSchema = mongoose.Schema({
             ref:"Message",
             default:[]
         }
-    ]
+    ],
+    unreadCount: { 
+    type: Map, // key = userId, value = count
+    of: Number,
+    default: {}
+  }
 },{timestamps:true})
 
 const Conversation = mongoose.model('Conversation',conversationSchema)

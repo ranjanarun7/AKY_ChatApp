@@ -23,11 +23,15 @@ try {
         senderId,
         reciverId,
         message:messages,
-        conversationId: chats._id
+        conversationId: chats._id,
+        isRead: false
     })
 
     if(newMessages){
         chats.messages.push(newMessages._id);
+        // unread count update
+  if (!chats.unreadCount) chats.unreadCount = {};
+  chats.unreadCount.set(reciverId, (chats.unreadCount.get(reciverId) || 0) + 1);
     }
 
     await Promise.all([chats.save(),newMessages.save()]);
@@ -60,6 +64,11 @@ try {
     }).populate("messages")
 
     if(!chats)  return res.status(200).send([]);
+    if (chats) {
+  // reset unread for current user
+  chats.unreadCount.set(senderId, 0);
+  await chats.save();
+}
     const message = chats.messages;
     res.status(200).send(message)
 } catch (error) {
