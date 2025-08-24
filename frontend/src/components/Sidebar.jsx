@@ -7,6 +7,7 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import userConversation from "../Zustans/useConversation";
 import { useSocketContext } from "../context/SocketContext";
 import ProfileDrawer from "./ProfileDrawer";
+import notify from "../assets/sound/notification.mp3";
 
 const Sidebar = ({ onSelectUser }) => {
   const { authUser, setAuthUser } = useAuth();
@@ -103,6 +104,7 @@ const Sidebar = ({ onSelectUser }) => {
       const senId = newMessage.senderId?.toString?.() || newMessage.senderId;
 
       if (recId === authUser._id.toString()) {
+        new Audio(notify).play();
         setNewMessageCount((prev) => ({
           ...prev,
           [senId]: (prev[senId] || 0) + 1,
