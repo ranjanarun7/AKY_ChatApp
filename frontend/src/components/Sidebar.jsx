@@ -230,7 +230,7 @@ const Sidebar = ({ onSelectUser }) => {
                       {/* ✅ unread badge */}
                       {newMessageCount[userIdStr] > 0 && (
                         <div className="rounded-full bg-green-700 text-sm text-white px-[6px]">
-                          {newMessageCount[userIdStr]}
+                          + {newMessageCount[userIdStr]}
                         </div>
                       )}
                     </div>
