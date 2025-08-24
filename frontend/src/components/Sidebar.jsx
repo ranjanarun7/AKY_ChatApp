@@ -22,20 +22,30 @@ const Sidebar = ({ onSelectUser }) => {
 
   // fetch chat users
   useEffect(() => {
-    const fetchChatUsers = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`/api/user/currentchatters`);
-        if (res.data.success === false) console.log(res.data.message);
-        else setChatUser(res.data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
+  const fetchChatUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/user/currentchatters`);
+      if (res.data.success === false) console.log(res.data.message);
+      else {
+        setChatUser(res.data);
+
+        // ✅ backend se unread counts set karo
+        const unreadMap = {};
+        res.data.forEach(user => {
+          unreadMap[user._id] = user.unreadCount || 0;
+        });
+        setNewMessageCount(unreadMap);
       }
-    };
-    fetchChatUsers();
-  }, []);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchChatUsers();
+}, []);
+
 
   // search submit
   const handelSearchSubmit = async (e) => {
@@ -105,17 +115,26 @@ const Sidebar = ({ onSelectUser }) => {
   }, [socket, authUser._id]);
 
   // ✅ reset count when user clicked
-  const handelUserClick = (user) => {
-    onSelectUser(user);
-    setSelectedConversation(user);
-    setSelectedUserId(user._id);
+  const handelUserClick = async (user) => {
+  onSelectUser(user);
+  setSelectedConversation(user);
+  setSelectedUserId(user._id);
 
-    setNewMessageCount((prev) => {
-      const updated = { ...prev };
-      delete updated[user._id.toString()];
-      return updated;
-    });
-  };
+  try {
+    // ✅ backend me unread reset
+    await axios.get(`/api/message/${user._id}`);
+  } catch (err) {
+    console.log(err);
+  }
+
+  // ✅ frontend me bhi reset
+  setNewMessageCount((prev) => {
+    const updated = { ...prev };
+    delete updated[user._id.toString()];
+    return updated;
+  });
+};
+
 
   return (
     <div className="h-full w-auto px-1">
