@@ -3,7 +3,6 @@ import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { IoArrowBackSharp } from "react-icons/io5";
 import userConversation from "../Zustans/useConversation";
 import { useSocketContext } from "../context/SocketContext";
@@ -16,18 +15,10 @@ const Sidebar = ({ onSelectUser }) => {
   const [chatUser, setChatUser] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [newMessageUsers, setNewMessageUsers] = useState("");
   const { setSelectedConversation } = userConversation();
   const { onlineUser, socket } = useSocketContext();
   const [openDrawer, setOpenDrawer] = useState(false);
-
-  // ✅ newMessage handle
-  useEffect(() => {
-    if (!socket) return;
-    const handleNewMessage = (newMessage) => setNewMessageUsers(newMessage);
-    socket.on("newMessage", handleNewMessage);
-    return () => socket.off("newMessage", handleNewMessage);
-  }, [socket]);
+  const [newMessageCount, setNewMessageCount] = useState({});
 
   // fetch chat users
   useEffect(() => {
@@ -49,7 +40,6 @@ const Sidebar = ({ onSelectUser }) => {
   // search submit
   const handelSearchSubmit = async (e) => {
     e.preventDefault();
-    //if (!searchInput) return;
     setLoading(true);
     try {
       const res = await axios.get(`/api/user/search?search=${searchInput}`);
@@ -63,50 +53,78 @@ const Sidebar = ({ onSelectUser }) => {
     }
   };
 
-useEffect(() => {
-  if (!searchInput.trim()) {
-    setSearchUser([]);
-    return;
-  }
-
-  const delayDebounce = setTimeout(async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`/api/user/search?search=${searchInput}`);
-      if (res.data.success === false) {
-        console.log(res.data.message);
-      } else if (res.data.length === 0) {
-        setSearchUser([]);
-      } else {
-        setSearchUser(res.data);
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+  // live search debounce
+  useEffect(() => {
+    if (!searchInput.trim()) {
+      setSearchUser([]);
+      return;
     }
-  }, 400); // 400ms debounce
-
-  return () => clearTimeout(delayDebounce);
-}, [searchInput]);
-
-  const handelUserClick = (user) => {
-    onSelectUser(user);
-    setSelectedConversation(user);
-    setSelectedUserId(user._id);
-    setNewMessageUsers("");
-  };
+    const delayDebounce = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`/api/user/search?search=${searchInput}`);
+        if (res.data.success === false) {
+          console.log(res.data.message);
+        } else if (res.data.length === 0) {
+          setSearchUser([]);
+        } else {
+          setSearchUser(res.data);
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [searchInput]);
 
   const handSearchBack = () => {
     setSearchUser([]);
     setSearchInput("");
   };
 
+  // ✅ socket handle new messages
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (newMessage) => {
+      const recId = newMessage.reciverId?.toString?.() || newMessage.reciverId;
+      const senId = newMessage.senderId?.toString?.() || newMessage.senderId;
+
+      if (recId === authUser._id.toString()) {
+        setNewMessageCount((prev) => ({
+          ...prev,
+          [senId]: (prev[senId] || 0) + 1,
+        }));
+      }
+    };
+
+    socket.on("newMessage", handleNewMessage);
+    return () => socket.off("newMessage", handleNewMessage);
+  }, [socket, authUser._id]);
+
+  // ✅ reset count when user clicked
+  const handelUserClick = (user) => {
+    onSelectUser(user);
+    setSelectedConversation(user);
+    setSelectedUserId(user._id);
+
+    setNewMessageCount((prev) => {
+      const updated = { ...prev };
+      delete updated[user._id.toString()];
+      return updated;
+    });
+  };
+
   return (
     <div className="h-full w-auto px-1">
       {/* Search + Profile */}
       <div className="flex justify-between gap-2">
-        <form onSubmit={handelSearchSubmit} className="w-auto flex items-center justify-between bg-white rounded-full">
+        <form
+          onSubmit={handelSearchSubmit}
+          className="w-auto flex items-center justify-between bg-white rounded-full"
+        >
           <input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -126,17 +144,16 @@ useEffect(() => {
         />
 
         {openDrawer && authUser && (
-  <ProfileDrawer
-    isOpen={openDrawer}
-    onClose={() => setOpenDrawer(false)}
-    user={authUser}
-    setUser={(updatedUser) => {
-      setAuthUser(updatedUser);  // ✅ context update
-      localStorage.setItem("chatapp", JSON.stringify(updatedUser)); // ✅ persist update
-    }}
-  />
-)}
-
+          <ProfileDrawer
+            isOpen={openDrawer}
+            onClose={() => setOpenDrawer(false)}
+            user={authUser}
+            setUser={(updatedUser) => {
+              setAuthUser(updatedUser);
+              localStorage.setItem("chatapp", JSON.stringify(updatedUser));
+            }}
+          />
+        )}
       </div>
 
       <div className="divider px-3"></div>
@@ -149,9 +166,15 @@ useEffect(() => {
               <div key={user._id}>
                 <div
                   onClick={() => handelUserClick(user)}
-                  className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${selectedUserId === user._id ? "bg-sky-500" : ""}`}
+                  className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${
+                    selectedUserId === user._id ? "bg-sky-500" : ""
+                  }`}
                 >
-                  <div className={`avatar ${onlineUser.includes(user._id) ? "online" : ""}`}>
+                  <div
+                    className={`avatar ${
+                      onlineUser.includes(user._id) ? "online" : ""
+                    }`}
+                  >
                     <div className="w-12 rounded-full">
                       <img src={user.profilepic} alt="user.img" />
                     </div>
@@ -165,7 +188,10 @@ useEffect(() => {
             ))}
           </div>
           <div className="mt-auto px-1 py-1 flex">
-            <button onClick={handSearchBack} className="bg-white text-gray-950 rounded-full px-2 py-1 self-center">
+            <button
+              onClick={handSearchBack}
+              className="bg-white text-gray-950 rounded-full px-2 py-1 self-center"
+            >
               <IoArrowBackSharp size={25} />
             </button>
           </div>
@@ -179,29 +205,39 @@ useEffect(() => {
                 <h1>Search username to chat</h1>
               </div>
             ) : (
-              chatUser.map((user) => (
-                <div key={user._id}>
-                  <div
-                    onClick={() => handelUserClick(user)}
-                    className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${selectedUserId === user._id ? "bg-sky-500" : ""}`}
-                  >
-                    <div className={`avatar ${onlineUser.includes(user._id) ? "online" : ""}`}>
-                      <div className="w-12 rounded-full">
-                        <img src={user.profilepic} alt="user.img" />
+              chatUser.map((user) => {
+                const userIdStr = user._id.toString();
+                return (
+                  <div key={userIdStr}>
+                    <div
+                      onClick={() => handelUserClick(user)}
+                      className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${
+                        selectedUserId === user._id ? "bg-sky-500" : ""
+                      }`}
+                    >
+                      <div
+                        className={`avatar ${
+                          onlineUser.includes(user._id) ? "online" : ""
+                        }`}
+                      >
+                        <div className="w-12 rounded-full">
+                          <img src={user.profilepic} alt="user.img" />
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex flex-col flex-1">
-                      <p className="font-bold text-white">{user.username}</p>
-                    </div>
-                    <div>
-                      {newMessageUsers.reciverId === authUser._id && newMessageUsers.senderId === user._id && (
-                        <div className="rounded-full bg-green-700 text-sm text-white px-[4px]">+1</div>
+                      <div className="flex flex-col flex-1">
+                        <p className="font-bold text-white">{user.username}</p>
+                      </div>
+                      {/* ✅ unread badge */}
+                      {newMessageCount[userIdStr] > 0 && (
+                        <div className="rounded-full bg-green-700 text-sm text-white px-[6px]">
+                          {newMessageCount[userIdStr]}
+                        </div>
                       )}
                     </div>
+                    <div className="divider divide-solid px-3 h-[1px]"></div>
                   </div>
-                  <div className="divider divide-solid px-3 h-[1px]"></div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </>
