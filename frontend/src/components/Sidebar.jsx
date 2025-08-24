@@ -193,7 +193,7 @@ const Sidebar = ({ onSelectUser }) => {
                 >
                   <div
                     className={`avatar ${
-                      onlineUser.includes(user._id) ? "online" : ""
+                      onlineUser.includes(user._id.toString()) ? "online" : ""
                     }`}
                   >
                     <div className="w-12 rounded-full">
@@ -238,7 +238,7 @@ const Sidebar = ({ onSelectUser }) => {
                     >
                       <div
                         className={`avatar ${
-                          onlineUser.includes(user._id) ? "online" : ""
+                          onlineUser.includes(user._id.toString()) ? "online" : ""
                         }`}
                       >
                         <div className="w-12 rounded-full">
