@@ -8,8 +8,9 @@ import userConversation from "../Zustans/useConversation";
 import { useSocketContext } from "../context/SocketContext";
 import ProfileDrawer from "./ProfileDrawer";
 import notify from "../assets/sound/notification.mp3";
+import { SiOpenai } from "react-icons/si";
 
-const Sidebar = ({ onSelectUser }) => {
+const Sidebar = ({ onSelectUser, onOpenAIChat }) => {
   const { authUser, setAuthUser } = useAuth();
   const [searchInput, setSearchInput] = useState("");
   const [searchUser, setSearchUser] = useState([]);
@@ -140,44 +141,61 @@ const Sidebar = ({ onSelectUser }) => {
 
   return (
     <div className="h-full w-auto px-1">
-      {/* Search + Profile */}
-      <div className="flex justify-between gap-2">
-        <form
-          onSubmit={handelSearchSubmit}
-          className="w-auto flex items-center justify-between bg-white rounded-full"
-        >
-          <input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            type="text"
-            className="px-4 w-auto bg-transparent outline-none rounded-full text-black"
-            placeholder="search user"
-          />
-          <button className="btn btn-circle bg-sky-700 hover:bg-gray-950">
-            <FaSearch />
-          </button>
-        </form>
+     {/* 🔹 First Row : App Name + Profile + AI Icon */}
+    <div className="flex items-center justify-between gap-2 py-2">
+      {/* App Name */}
+      <h1 className="text-2xl font-extrabold text-sky-400 tracking-wide">
+        AKY ChatApp
+      </h1>
 
-        <img
-          onClick={() => setOpenDrawer(true)}
-          src={authUser?.profilepic}
-          className="self-center h-12 w-12 hover:scale-110 cursor-pointer rounded-full"
-        />
+      {/* Profile */}
+      <img
+        onClick={() => setOpenDrawer(true)}
+        src={authUser?.profilepic}
+        className="h-12 w-12 hover:scale-110 cursor-pointer rounded-full border-2 border-sky-500"
+      />
 
-        {openDrawer && authUser && (
-          <ProfileDrawer
-            isOpen={openDrawer}
-            onClose={() => setOpenDrawer(false)}
-            user={authUser}
-            setUser={(updatedUser) => {
-              setAuthUser(updatedUser);
-              localStorage.setItem("chatapp", JSON.stringify(updatedUser));
-            }}
-          />
-        )}
-      </div>
+      {/* AI Icon */}
+      <button
+        className="p-2 rounded-full bg-sky-600 hover:bg-sky-800 text-white shadow-md"
+        onClick={() => toast.info("AI Chat is coming soon!")}
+        // onClick={onOpenAIChat}
+      >
+        <SiOpenai size={22} />
+      </button>
+    </div>
 
-      <div className="divider px-3"></div>
+    {/* Drawer */}
+    {openDrawer && authUser && (
+      <ProfileDrawer
+        isOpen={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        user={authUser}
+        setUser={(updatedUser) => {
+          setAuthUser(updatedUser);
+          localStorage.setItem("chatapp", JSON.stringify(updatedUser));
+        }}
+      />
+    )}
+
+    {/* 🔹 Second Row : Search */}
+    <form
+      onSubmit={handelSearchSubmit}
+      className="flex items-center justify-between bg-white rounded-full px-2 py-1 mt-2"
+    >
+      <input
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        type="text"
+        className="px-4 flex-1 bg-transparent outline-none text-black"
+        placeholder="Search user..."
+      />
+      <button className="btn btn-circle bg-sky-700 hover:bg-gray-950 text-white">
+        <FaSearch />
+      </button>
+    </form>
+
+    <div className="divider px-3"></div>
 
       {/* User List */}
       {searchUser.length > 0 ? (
