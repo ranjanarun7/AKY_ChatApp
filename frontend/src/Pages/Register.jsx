@@ -1,8 +1,8 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useAuth } from '../context/AuthContext';
+import axios from "axios";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -32,7 +32,6 @@ const Register = () => {
     }
 
     try {
-      // Use FormData for text + file
       const formData = new FormData();
       Object.keys(inputData).forEach((key) => {
         formData.append(key, inputData[key]);
@@ -65,42 +64,69 @@ const Register = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-6">
-        {/* Profile Image Preview */}
-        <div className="flex justify-center mb-4">
-          <label htmlFor="profilePic" className="cursor-pointer">
-            <img
-              src={
-                profilePic
-                  ? URL.createObjectURL(profilePic)
-                  : "https://avatar.iran.liara.run/public/boy?username=guest"
-              }
-              alt="profile"
-              className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
-            />
-          </label>
-          <input
-            id="profilePic"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </div>
-
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Register <span className="text-sky-600">AKY-ChatApp</span>
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center mt-6"
+    >
+      <div className="w-full max-w-md p-6 rounded-xl shadow-lg 
+    bg-black/50 backdrop-blur-md border-rounded">
+        <h1 className="text-3xl font-bold text-center text-white mb-3 mt-6">
+          Register <span className="text-sky-400">AKY-ChatApp</span>
         </h1>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-black">
+        {/* Profile Image */}
+        <div className="relative flex justify-center mb-4">
+  <label htmlFor="profilePic" className="cursor-pointer">
+    <img
+      src={
+        profilePic
+          ? URL.createObjectURL(profilePic)
+          : "https://avatar.iran.liara.run/public/boy?username=guest"
+      }
+      alt="profile"
+      className="w-24 h-24 rounded-full object-cover border-2 border-sky-400"
+    />
+    {/* Camera Icon Overlay */}
+    <div className="absolute inset-0 flex items-center justify-center rounded-full opacity-100 transition-opacity">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-8 w-8 text-white"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        strokeWidth={2}
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M3 7h4l3-3h4l3 3h4v14H3V7z"
+        />
+        <circle cx="12" cy="13" r="3" stroke="white" strokeWidth={2} />
+      </svg>
+    </div>
+  </label>
+  <input
+    id="profilePic"
+    type="file"
+    accept="image/*"
+    onChange={handleFileChange}
+    className="hidden"
+  />
+</div>
+
+
+
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 text-black"
+        >
           <input
             id="fullname"
             type="text"
             onChange={handleInput}
             placeholder="Full Name"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-sky-300"
+            className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-500 focus:ring-2 focus:ring-sky-400"
           />
           <input
             id="username"
@@ -108,7 +134,7 @@ const Register = () => {
             onChange={handleInput}
             placeholder="Username"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-sky-300"
+            className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-500 focus:ring-2 focus:ring-sky-400"
           />
           <input
             id="email"
@@ -116,7 +142,7 @@ const Register = () => {
             onChange={handleInput}
             placeholder="Email"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-sky-300"
+            className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-500 focus:ring-2 focus:ring-sky-400"
           />
           <input
             id="password"
@@ -124,7 +150,7 @@ const Register = () => {
             onChange={handleInput}
             placeholder="Password"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-sky-300"
+            className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-500 focus:ring-2 focus:ring-sky-400"
           />
           <input
             id="confpassword"
@@ -132,11 +158,12 @@ const Register = () => {
             onChange={handleInput}
             placeholder="Confirm Password"
             required
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-sky-300"
+            className="w-full px-3 py-2 rounded-lg bg-gray-950 border border-gray-500 focus:ring-2 focus:ring-sky-400"
           />
 
-          {/* Gender Selection */}
-          <div className="flex items-center gap-6">
+          {/* Gender */}
+          <div className="flex items-center justify-center gap-6 text-sm font-bold">
+            <span className="text-gray-950 font-bold">Gender :</span>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
@@ -144,9 +171,9 @@ const Register = () => {
                 value="male"
                 checked={inputData.gender === "male"}
                 onChange={() => setInputData({ ...inputData, gender: "male" })}
-                className="radio radio-info"
+                className="accent-sky-400"
               />
-              <span className="text-gray-700 font-medium">Male</span>
+              Male
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -154,28 +181,30 @@ const Register = () => {
                 name="gender"
                 value="female"
                 checked={inputData.gender === "female"}
-                onChange={() => setInputData({ ...inputData, gender: "female" })}
-                className="radio radio-info"
+                onChange={() =>
+                  setInputData({ ...inputData, gender: "female" })
+                }
+                className="accent-sky-400"
               />
-              <span className="text-gray-700 font-medium">Female</span>
+              Female
             </label>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-2 mt-4 text-lg font-semibold text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-all"
+            className="w-full py-2 mt-2 text-lg font-semibold text-white bg-gray-950 rounded-lg hover:bg-gray-800 transition-all"
           >
             {loading ? "Loading..." : "Register"}
           </button>
         </form>
 
+        {/* Bottom link */}
         <div className="pt-4 text-center">
           <p className="text-sm text-gray-600">
             Have an account?{" "}
             <Link
               to="/login"
-              className="text-sky-700 font-bold underline hover:text-sky-900"
+              className="text-gray-950 font-bold underline hover:text-gray-600"
             >
               Login Now!!
             </Link>
