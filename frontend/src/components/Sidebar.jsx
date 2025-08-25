@@ -10,7 +10,7 @@ import ProfileDrawer from "./ProfileDrawer";
 import notify from "../assets/sound/notification.mp3";
 import { SiOpenai } from "react-icons/si";
 
-const Sidebar = ({ onSelectUser, onOpenAIChat }) => {
+const Sidebar = ({ onSelectUser }) => {
   const { authUser, setAuthUser } = useAuth();
   const [searchInput, setSearchInput] = useState("");
   const [searchUser, setSearchUser] = useState([]);
