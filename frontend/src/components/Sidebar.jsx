@@ -217,8 +217,8 @@ const fetchSenderInfo = async (userId) => {
           className="px-4 flex-1 bg-transparent outline-none text-black"
           placeholder="Search user..."
         />
-        <button className="btn btn-circle bg-sky-700 hover:bg-gray-950 text-white">
-          <FaSearch />
+        <button className="ml-2 flex items-center justify-center w-9 h-9 rounded-full bg-sky-700 hover:bg-gray-950 text-white">
+          <FaSearch size={16} />
         </button>
       </form>
 
