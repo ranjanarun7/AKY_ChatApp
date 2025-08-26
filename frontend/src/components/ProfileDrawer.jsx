@@ -18,7 +18,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, setUser }) {
     profilepic: null,
   });
 
-  const [photoPreview, setPhotoPreview] = useState(false); // 👈 NEW STATE
+  const [photoPreview, setPhotoPreview] = useState(false);
 
   useEffect(() => {
     setEditData({
@@ -126,7 +126,7 @@ export default function ProfileDrawer({ isOpen, onClose, user, setUser }) {
             }
             alt="Profile"
             className="w-24 h-24 rounded-full object-cover cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => setPhotoPreview(true)} // 👈 Open Preview
+            onClick={() => setPhotoPreview(true)}
           />
           <label className="cursor-pointer text-blue-500 text-sm mt-2">
             Change Photo
