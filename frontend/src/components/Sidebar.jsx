@@ -208,7 +208,7 @@ const fetchSenderInfo = async (userId) => {
       {/* 🔹 Search */}
       <form
         onSubmit={handelSearchSubmit}
-        className="flex items-center justify-between bg-white rounded-full px-2 py-1 mt-2"
+        className="flex items-center justify-between bg-white rounded-full px-2 py-1 mt-2  w-full max-w-md mx-auto"
       >
         <input
           value={searchInput}
