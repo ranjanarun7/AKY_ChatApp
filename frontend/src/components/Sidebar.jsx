@@ -179,7 +179,7 @@ const fetchSenderInfo = async (userId) => {
   };
 
   return (
-    <div className="h-screen w-72 px-2  flex flex-col">
+    <div className="h-screen w-full sm:w-72 px-2  flex flex-col">
       {/* 🔹 First Row : App Name + Profile */}
       <div className="flex items-center justify-between gap-2 py-2">
         <h1 className="text-2xl font-extrabold text-sky-400 tracking-wide">
