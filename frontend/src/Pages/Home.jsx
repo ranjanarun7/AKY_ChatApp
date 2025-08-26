@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import MessageContainer from '../components/MessageContainer';
+import userConversation from '../Zustans/useConversation';
 
 const Home = () => {
 
-  const [selectedUser , setSelectedUser] = useState(null);
+  const { selectedConversation, setSelectedConversation } = userConversation();
   const [isSidebarVisible , setIsSidebarVisible]= useState(true);
 
-  const handelUserSelect=(user)=>{
-    setSelectedUser(user);
+const handelUserSelect = (user) => {
+  setSelectedConversation(user);
+  if (window.innerWidth < 768) {   // sirf mobile me sidebar hide karo
     setIsSidebarVisible(false);
   }
+};
   const handelShowSidebar=()=>{
+    setSelectedConversation(null);
     setIsSidebarVisible(true);
-    setSelectedUser(null);
   }
   return (
 
@@ -29,8 +32,8 @@ const Home = () => {
       <Sidebar onSelectUser={handelUserSelect}/>
       </div>
       <div className={`divider divider-horizontal px-1 md:flex
-         ${isSidebarVisible ? '' : 'hidden'} ${selectedUser ? 'block' : 'hidden'}`}></div>
-      <div className={`flex-auto ${selectedUser ? '' : 'hidden md:flex'} bg-gray-200}`}>
+         ${isSidebarVisible ? '' : 'hidden'} ${selectedConversation ? 'block' : 'hidden'}`}></div>
+      <div className={`flex-auto ${selectedConversation ? '' : 'hidden md:flex'}`}>
       <MessageContainer onBackUser={handelShowSidebar}/>
       </div>
     </div>

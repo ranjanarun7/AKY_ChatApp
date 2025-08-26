@@ -15,9 +15,8 @@ const Sidebar = ({ onSelectUser }) => {
   const [searchUser, setSearchUser] = useState([]);
   const [chatUser, setChatUser] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const { setSelectedConversation } = userConversation();
-  const { onlineUser, socket } = useSocketContext();
+  const { setSelectedConversation , selectedConversation } = userConversation();
+  const { onlineUser, socket} = useSocketContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [newMessageCount, setNewMessageCount] = useState({});
 
@@ -92,31 +91,79 @@ const Sidebar = ({ onSelectUser }) => {
     setSearchInput("");
   };
 
-  // socket handle new messages
-  useEffect(() => {
-    if (!socket) return;
-    const handleNewMessage = (newMessage) => {
-      const recId = newMessage.reciverId?.toString?.() || newMessage.reciverId;
-      const senId = newMessage.senderId?.toString?.() || newMessage.senderId;
+ // socket handle new messages
+useEffect(() => {
+  if (!socket) return;
 
-      if (recId === authUser._id.toString()) {
-        new Audio(notify).play();
-        setNewMessageCount((prev) => ({
-          ...prev,
-          [senId]: (prev[senId] || 0) + 1,
-        }));
-      }
-    };
+  const handleNewMessage = async (newMessage) => {
+    const recId = newMessage.reciverId?.toString?.() || newMessage.reciverId;
+    const senId = newMessage.senderId?.toString?.() || newMessage.senderId;
 
-    socket.on("newMessage", handleNewMessage);
-    return () => socket.off("newMessage", handleNewMessage);
-  }, [socket, authUser._id]);
+    if (recId === authUser._id.toString()) {
+      new Audio(notify).play();
+
+      setChatUser((prev) => {
+        const exists = prev.find((u) => u._id === senId);
+        if (!exists) {
+          // agar senderInfo nahi aaya to API se fetch karo
+          if (!newMessage.senderInfo) {
+            fetchSenderInfo(senId);
+          } else {
+            return [
+              {
+                _id: senId,
+                username: newMessage.senderInfo?.username || "Unknown",
+                profilepic: newMessage.senderInfo?.profilepic || "",
+                unreadCount: 0,
+              },
+              ...prev,
+            ];
+          }
+        }
+        return prev;
+      });
+
+      setNewMessageCount((prev) => {
+        if (selectedConversation?._id !== senId) {
+          return {
+            ...prev,
+            [senId]: (prev[senId] || 0) + 1,
+          };
+        }
+        return prev;
+      });
+    }
+  };
+
+  socket.on("newMessage", handleNewMessage);
+  return () => socket.off("newMessage", handleNewMessage);
+}, [socket, authUser._id, selectedConversation?._id]);
+
+// 🔹 helper function to fetch user details
+const fetchSenderInfo = async (userId) => {
+  try {
+    const res = await axios.get(`/api/user/${userId}`);
+    if (res.data) {
+      setChatUser((prev) => [
+        {
+          _id: res.data._id,
+          username: res.data.username,
+          profilepic: res.data.profilepic,
+          unreadCount: 0,
+        },
+        ...prev,
+      ]);
+    }
+  } catch (err) {
+    console.log("Failed to fetch sender info:", err);
+  }
+};
+
 
   // reset count when user clicked
   const handelUserClick = async (user) => {
     onSelectUser(user);
     setSelectedConversation(user);
-    setSelectedUserId(user._id);
 
     try {
       await axios.get(`/api/message/${user._id}`);
@@ -185,7 +232,7 @@ const Sidebar = ({ onSelectUser }) => {
                 <div
                   onClick={() => handelUserClick(user)}
                   className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${
-                    selectedUserId === user._id ? "bg-sky-500" : ""
+                    selectedConversation?._id === user._id ? "bg-sky-500" : ""
                   }`}
                 >
                   <div
@@ -218,7 +265,7 @@ const Sidebar = ({ onSelectUser }) => {
                   <div
                     onClick={() => handelUserClick(user)}
                     className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${
-                      selectedUserId === user._id ? "bg-sky-500" : ""
+                      selectedConversation?._id === user._id ? "bg-sky-500" : ""
                     }`}
                   >
                     <div className="relative">

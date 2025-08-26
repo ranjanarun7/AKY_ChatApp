@@ -20,6 +20,7 @@ const MessageContainer = ({ onBackUser }) => {
   const [sending, setSending] = useState(false);
   const [sendData, setSnedData] = useState("");
   const lastMessageRef = useRef();
+  
 
   useEffect(() => {
     if (!socket) return;
@@ -109,10 +110,13 @@ const MessageContainer = ({ onBackUser }) => {
             <div className="flex gap-2 md:justify-between items-center w-full">
               <div className="md:hidden ml-1 self-center">
                 <button
-                  onClick={() => onBackUser(true)}
+                  onClick={() => {
+    setSelectedConversation(null); // zustand reset
+    onBackUser();                  // sidebar show
+  }}
                   className="bg-white text-black rounded-full px-2 py-1
                    self-center"
-                >
+                > 
                   <IoArrowBackSharp size={25} />
                 </button>
               </div>
