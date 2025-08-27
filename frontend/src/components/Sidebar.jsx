@@ -238,12 +238,14 @@ const Sidebar = ({ onSelectUser }) => {
               </p>
             )
           )
-        ) : chatUser.length === 0 ? (
-          <div className="font-bold flex flex-col text-xl text-yellow-500 items-center">
-            <h1>Why are you Alone!!🤔</h1>
-            <h1>Search username to chat</h1>
-          </div>
-        ) : (
+        ) : loading ? (
+  <p className="text-gray-400 text-center mt-4 font-bold">Loading chats...</p>
+) : chatUser.length === 0 ? (
+  <div className="font-bold flex flex-col text-xl text-yellow-500 items-center">
+    <h1>Why are you Alone!!🤔</h1>
+    <h1>Search username to chat</h1>
+  </div>
+) : (
           chatUser.map((user) => {
             const userIdStr = user._id.toString();
             return (
