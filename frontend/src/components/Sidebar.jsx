@@ -16,6 +16,7 @@ const Sidebar = ({ onSelectUser }) => {
   const { onlineUser, socket } = useSocketContext();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [newMessageCount, setNewMessageCount] = useState({});
+  const [searchCompleted, setSearchCompleted] = useState(false);
 
   useEffect(() => {
     const fetchChatUsers = async () => {
@@ -43,10 +44,13 @@ const Sidebar = ({ onSelectUser }) => {
   useEffect(() => {
     if (!searchInput.trim()) {
       setSearchUser([]);
+      setSearchCompleted(false);
       return;
     }
+
     const delayDebounce = setTimeout(async () => {
       setLoading(true);
+      setSearchCompleted(false);
       try {
         const res = await axios.get(`/api/user/search?search=${searchInput}`);
         if (res.data.success === false) {
@@ -60,8 +64,10 @@ const Sidebar = ({ onSelectUser }) => {
         setSearchUser([]);
       } finally {
         setLoading(false);
+        setSearchCompleted(true);
       }
-    }, 400);
+    }, 100);
+
     return () => clearTimeout(delayDebounce);
   }, [searchInput]);
 
@@ -196,7 +202,11 @@ const Sidebar = ({ onSelectUser }) => {
 
       <div className="flex-1 overflow-y-auto scrollbar">
         {searchInput ? (
-          searchUser.length > 0 ? (
+          loading ? (
+            <p className="text-gray-400 text-center mt-4 font-bold">
+              Searching...
+            </p>
+          ) : searchUser.length > 0 ? (
             searchUser.map((user) => (
               <div key={user._id}>
                 <div
@@ -222,14 +232,13 @@ const Sidebar = ({ onSelectUser }) => {
               </div>
             ))
           ) : (
-            !loading && (
+            searchCompleted && (
               <p className="text-gray-400 text-center mt-4 font-bold">
                 User not found 🚫
               </p>
             )
           )
-        ) :
-        chatUser.length === 0 ? (
+        ) : chatUser.length === 0 ? (
           <div className="font-bold flex flex-col text-xl text-yellow-500 items-center">
             <h1>Why are you Alone!!🤔</h1>
             <h1>Search username to chat</h1>
