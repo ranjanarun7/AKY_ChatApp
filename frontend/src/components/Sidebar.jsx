@@ -80,6 +80,8 @@ const Sidebar = ({ onSelectUser }) => {
     if (!socket) return;
 
     const handleNewMessage = async (newMessage) => {
+      if (!newMessage.senderId || !newMessage.reciverId) return;
+
       const recId = newMessage.reciverId?.toString?.() || newMessage.reciverId;
       const senId = newMessage.senderId?.toString?.() || newMessage.senderId;
 
@@ -149,6 +151,13 @@ const Sidebar = ({ onSelectUser }) => {
     } catch (err) {
       console.log(err);
     }
+    setChatUser((prev) => {
+   const exists = prev.some((u) => u._id === user._id);
+   if (!exists) {
+     return [user, ...prev];
+   }
+  return prev;
+});
 
     setNewMessageCount((prev) => {
       const updated = { ...prev };
@@ -247,9 +256,9 @@ const Sidebar = ({ onSelectUser }) => {
   </div>
 ) : (
           chatUser.map((user) => {
-            const userIdStr = user._id.toString();
+            const userIdStr = user?._id ? user._id.toString() : "";
             return (
-              <div key={userIdStr}>
+              <div key={userIdStr || Math.random()}>
                 <div
                   onClick={() => handelUserClick(user)}
                   className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${
