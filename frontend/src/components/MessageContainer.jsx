@@ -20,7 +20,6 @@ const MessageContainer = ({ onBackUser }) => {
   const [sending, setSending] = useState(false);
   const [sendData, setSnedData] = useState("");
   const lastMessageRef = useRef();
-  const [photoPreview, setPhotoPreview] = useState(false);
   
 
   useEffect(() => {
@@ -125,7 +124,6 @@ const MessageContainer = ({ onBackUser }) => {
                 <div className="self-center">
                   <img
                     className="rounded-full w-6 h-6 md:w-10 md:h-10 cursor-pointer"
-                    onClick={() => setPhotoPreview(true)}
                     src={selectedConversation?.profilepic}
                   />
                 </div>
@@ -207,31 +205,6 @@ const MessageContainer = ({ onBackUser }) => {
             </div>
           </form>
         </>
-      )}
-      {/* Fullscreen Photo Preview */}
-      {photoPreview && (
-        <div
-          className="fixed inset-0 bg-transparent flex flex-col items-center justify-center z-[100]"
-          onClick={() => setPhotoPreview(false)}
-        >
-          {/* Close Button */}
-          <button
-            onClick={() => setPhotoPreview(false)}
-            className="absolute top-5 right-5 text-white text-2xl"
-          >
-            ✕
-          </button>
-
-          {/* Image */}
-          <img
-            src={selectedConversation?.profilepic}
-            alt="Profile Preview"
-            className="max-w-[90%] max-h-[80%] rounded-lg shadow-lg"
-          />
-
-          {/* Name */}
-          <p className="text-black mt-4 text-lg font-semibold">{selectedConversation.fullname}</p>
-        </div>
       )}
     </div>
   );

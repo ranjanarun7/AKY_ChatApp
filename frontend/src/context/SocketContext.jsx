@@ -15,6 +15,7 @@ export const SocketContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (authUser) {
+      // ✅ dev/prod URL fix
       const socketInstance = io(
         import.meta.env.MODE === "development"
           ? "http://localhost:5000" // ⚡️ yahan aapke backend ka local port dena

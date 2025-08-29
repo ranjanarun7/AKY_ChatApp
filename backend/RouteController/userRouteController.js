@@ -44,7 +44,6 @@ export const userRegister = async (req, res) => {
       username: newUser.username,
       profilepic: newUser.profilepic,
       email: newUser.email,
-      message: "Succesfully Registered"
     });
   } catch (error) {
     res.status(500).send({
