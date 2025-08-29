@@ -6,7 +6,7 @@ export const sendMessage =async(req,res)=>{
 try {
     const {messages} = req.body;
     const {id:reciverId} = req.params;
-    const senderId = req.user._conditions._id;
+    const senderId = req.user._id || req.user._conditions?._id;
 
 
     let chats = await Conversation.findOne({
@@ -31,7 +31,7 @@ try {
         chats.messages.push(newMessages._id);
         // unread count update
   if (!chats.unreadCount) chats.unreadCount = {};
-  chats.unreadCount.set(reciverId, (chats.unreadCount.get(reciverId) || 0) + 1);
+  chats.unreadCount[reciverId] = (chats.unreadCount[reciverId] || 0) + 1;
     }
 
     await Promise.all([chats.save(),newMessages.save()]);
