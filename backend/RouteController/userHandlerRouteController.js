@@ -32,7 +32,12 @@ try {
 
 export const getCorrentChatters = async (req, res) => {
   try {
-    const currentUserID = req.user._conditions._id;
+    // 🛠️ safe userId extraction
+    const currentUserID = req.user._id || req.user._conditions?._id;
+
+    if (!currentUserID) {
+      return res.status(400).json({ success: false, message: "User not found in request" });
+    }
 
     const currenTChatters = await Conversation.find({
       participants: currentUserID
@@ -60,7 +65,7 @@ export const getCorrentChatters = async (req, res) => {
       .select("-password")
       .select("-email");
 
-    // अब हर user के साथ उसका unread count भी भेजेंगे
+    // unread count map karna
     const usersWithUnread = otherParticipentsIDS.map(id => {
       const user = users.find(u => u._id.toString() === id.toString());
       const convo = currenTChatters.find(c =>
@@ -69,16 +74,20 @@ export const getCorrentChatters = async (req, res) => {
 
       return {
         ...user.toObject(),
-        unreadCount: convo?.unreadCount?.get(currentUserID.toString()) || 0
+        // agar Map hai to get() rakho, agar Object hai to [] use karo
+        unreadCount: convo?.unreadCount?.get
+          ? convo.unreadCount.get(currentUserID.toString()) || 0
+          : convo?.unreadCount?.[currentUserID.toString()] || 0
       };
     });
 
     res.status(200).send(usersWithUnread);
   } catch (error) {
-    console.log(error);
+    console.log("Error in getCorrentChatters:", error);
     res.status(500).send({
       success: false,
       message: error.message || "Something went wrong"
     });
   }
 };
+

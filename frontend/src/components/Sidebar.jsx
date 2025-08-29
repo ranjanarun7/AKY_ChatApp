@@ -159,11 +159,11 @@ const Sidebar = ({ onSelectUser }) => {
   return prev;
 });
 
-    setNewMessageCount((prev) => {
-      const updated = { ...prev };
-      delete updated[user._id.toString()];
-      return updated;
-    });
+    setNewMessageCount((prev) => ({
+  ...prev,
+  [user._id.toString()]: 0
+}));
+
   };
 
   return (

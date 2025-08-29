@@ -30,8 +30,8 @@ try {
     if(newMessages){
         chats.messages.push(newMessages._id);
         // unread count update
-  if (!chats.unreadCount) chats.unreadCount = {};
-  chats.unreadCount[reciverId] = (chats.unreadCount[reciverId] || 0) + 1;
+  const currentUnread = chats.unreadCount.get(reciverId.toString()) || 0;
+chats.unreadCount.set(reciverId.toString(), currentUnread + 1);
     }
 
     await Promise.all([chats.save(),newMessages.save()]);
@@ -66,7 +66,8 @@ try {
     if(!chats)  return res.status(200).send([]);
     if (chats) {
   // reset unread for current user
-  chats.unreadCount.set(senderId, 0);
+  chats.unreadCount.set(senderId.toString(), 0);
+
   await chats.save();
 }
     const message = chats.messages;
