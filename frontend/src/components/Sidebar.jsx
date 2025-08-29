@@ -256,11 +256,11 @@ const Sidebar = ({ onSelectUser }) => {
   </div>
 ) : (
           chatUser.map((user) => {
-            const userIdStr = user?._id ? user._id.toString() : "";
+            const userIdStr = user && user._id ? String(user._id) : `temp-${Math.random()}`;
             return (
-              <div key={userIdStr || Math.random()}>
+              <div key={userIdStr}>
                 <div
-                  onClick={() => handelUserClick(user)}
+                  onClick={() => user && user._id && handelUserClick(user)}
                   className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${
                     selectedConversation?._id === user._id ? "bg-sky-500" : ""
                   }`}
@@ -278,7 +278,7 @@ const Sidebar = ({ onSelectUser }) => {
                   <div className="flex flex-col flex-1">
                     <p className="font-bold text-white">{user.username}</p>
                   </div>
-                  {newMessageCount[userIdStr] > 0 && (
+                  {user?._id && newMessageCount[userIdStr] > 0 && (
                     <div className="ml-auto flex items-center justify-center min-w-[20px] h-[20px] rounded-full bg-green-600 text-xs font-bold text-white px-2">
                       + {newMessageCount[userIdStr]}
                     </div>
